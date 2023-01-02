@@ -8,7 +8,8 @@ test('getFlights domestic points', async t => {
     from: 'SEA',
     to: 'CLE',
     departDate: tomorrow,
-    isPointsBooking: true
+    isPointsBooking: true,
+    passengerCount: 1
   };
   const flights = await getFlights(args);
 
@@ -28,7 +29,8 @@ test('getFlights international points', async t => {
     from: 'DEN',
     to: 'CUN',
     departDate: tomorrow,
-    isPointsBooking: true
+    isPointsBooking: true,
+    passengerCount: 1
   };
   const flights = await getFlights(args);
 
@@ -48,7 +50,8 @@ test('getFlights fake FROM airport points', async t => {
     from: 'FOO',
     to: 'CLE',
     departDate: tomorrow,
-    isPointsBooking: true
+    isPointsBooking: true,
+    passengerCount: 1
   };
   const flights = await getFlights(args);
 
@@ -76,7 +79,8 @@ test('getFlights previous date points', async t => {
     from: 'SEA',
     to: 'CLE',
     departDate: yesterday,
-    isPointsBooking: true
+    isPointsBooking: true,
+    passengerCount: 1
   };
   const flights = await getFlights(args);
 

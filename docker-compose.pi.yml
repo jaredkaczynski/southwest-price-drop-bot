@@ -1,0 +1,31 @@
+# Usage:
+#   docker compose -f docker-compose.pi.yml build
+#   docker-compose -f docker-compose.pi.yml up
+#   docker-compose -f docker-compose.pi.yml run
+#
+# Note: you'll need to set up a mongodb server in the cloud since pi does not support mongo
+
+version: "3"
+services:
+  nodeapp:
+    restart: always
+    container_name: southwest_app
+    build:
+      context: .
+      dockerfile: Dockerfile.pi
+    image: southwest-price-drop-bot
+    command: ["npm run start"]
+    env_file: .env
+    ports:
+      - "3000:3000"
+    environment:
+      - CHROME_EXECUTABLE=/usr/bin/chromium
+
+  nodescheduler:
+    container_name: southwest_check
+    restart: always
+    image: southwest-price-drop-bot
+    command: ["sh ./check-loop.sh"]
+    env_file: .env
+    environment:
+      - CHROME_EXECUTABLE=/usr/bin/chromium

@@ -1,0 +1,28 @@
+# Usage:
+#   docker build -t southwest-price-drop-bot .
+#   docker run --env-file .env -it southwest-price-drop-bot
+#   docker run --env-file .env -it southwest-price-drop-bot bash
+
+FROM node:17.1.0
+
+# clean eliminates the need to manually `rm -rf` the cache
+RUN set -eux; \
+  \
+  apt-get update; \
+  apt-get install -y --no-install-recommends \
+    bash \
+    nano less \
+    chromium chromium-driver \
+    cron; \
+  apt-get clean;
+
+WORKDIR /app
+
+# copy just the package definitions to make rebuilds faster
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile --production
+
+COPY . ./
+
+ENTRYPOINT ["/bin/sh", "-c"]
+CMD ["npm", "run", "start"]

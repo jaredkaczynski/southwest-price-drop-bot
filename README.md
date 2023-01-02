@@ -5,7 +5,7 @@ Deployed versions prior to 6/30/2019 (< 3.4.0) might want to do a clean deployme
 
 This tool lets you monitor the price of Southwest flights that you've booked. It will notify you if the price drops below what you originally paid. Then you can [re-book the same flight](http://dealswelike.boardingarea.com/2014/02/28/if-a-southwest-flight-goes-down-in-price/) and get Southwest credit for the price difference. This tool also lets you monitor the price of all Southwest flights on a given day. It will notify you if any flight on that day drops below the previous cheapest flight.
 
-Note that you need to have a [Plivo](https://www.plivo.com) account to send the text message notifications and a [Mailgun](https://www.mailgun.com) account to send the email notifications. You can run this tool without these accounts, but you won't get the notifications.
+Note that to send text messages you need a [Plivo](https://www.plivo.com) account and to send emails you'll need a [Mailgun](https://www.mailgun.com) account (or SMTP credentials). You can also send discord alerts through a webhook. You can run this tool without these accounts, but you won't get the notifications.
 
 You can log in with either:
 
@@ -74,14 +74,12 @@ Note: Deployed versions prior to 6/30/2019 (< 3.4.0) might want to do a clean de
 
 ## Southwest Bot Protection
 
-<span style="color:red">Right now, Southwest is successfully blocking requests from this project.</span>
-
 Southwest has some very fancy bot protections in place.
 
-* Heroku IPs, and other hosting providers, are blocked from accessing their site. Local deployments should be permitted to access their site, and some other cloud providers may work as well. The most reliable workaround is using a residential proxy service.
+* Heroku IPs (which is hosted on AWS), and other hosting providers, are blocked from accessing their site. Local deployments should be permitted to access their site, and some other cloud providers may work as well. The most reliable workaround is using a residential proxy service.
 * There's also some tricky and obfuscated Javascript that detects headless browsers and is updated very frequently. There's a community of folks that implement headless chrome detection evasions, but it's a cat and mouse game.
   * https://github.com/paulirish/headless-cat-n-mouse/blob/master/apply-evasions.js
-  * https//github.com/berstend/puppeteer-extra/tree/master/packages/puppeteer-extra-plugin-stealth/
+  * [puppeteer-extra-plugin-stealth](https//github.com/berstend/puppeteer-extra/tree/master/packages/puppeteer-extra-plugin-stealth/) (which is used in this propjectg)
   * https://github.com/shirshak55/scrapper-tools
 * Use `CHROME_DEBUG=true DEBUG="puppeteer:*"` combined with `node inspect` to debug strange chrome issues.
    * Request interception will log all URL load attempts and accept all requests.
@@ -93,92 +91,86 @@ Southwest has some very fancy bot protections in place.
 
 Instructions on deploying a proxy is outside the scope of this project. However, here's some information about proxies that might be useful:
 
-  * A hosted (cheap) proxy that works is https://luminati.io. It's less than $1 each month and seems reliable. Most public proxies don't seem to work, I imagine there is some sort of public proxy block list that is in place.
-  * You could use something like [Squid](http://www.squid-cache.org) and spin in up natively, in a container, or in a VM. Obviously you'll want to do this outside of Heroku
-  * If you do use Squid, you'll want to set up port forwarding or running on a high random port, and locking down `squid.conf` with something like this to prevent someone from using your setup as an open proxy:
+* A hosted (cheap) proxy that works is https://luminati.io. It's less than $1 each month and seems reliable. Most public proxies don't seem to work, I imagine there is some sort of public proxy block list that is in place.
+* You could use something like [Squid](http://www.squid-cache.org) and spin in up natively, in a container, or in a VM. Obviously you'll want to do this outside of Heroku
+* If you do use Squid, you'll want to set up port forwarding or running on a high random port, and locking down `squid.conf` with something like this to prevent someone from using your setup as an open proxy:
 
-  ```
-  acl swa dstdomain .southwest.com
-  http_access allow swa
-  http_access deny all
-  ```
+```
+acl swa dstdomain .southwest.com
+http_access allow swa
+http_access deny all
+```
+
 To configure the Price Drop Bot to use your proxy, define a new `PROXY` variable within the Heroku Config. The proxy format should be http://IP:port. Example: `heroku config:set PROXY='http://123.123.123.123:1234'`
 
 ## Development
 
 To run the test suite:
 
-```
+```shell
 yarn test
 ```
 
 To run a console loaded up with `Alert` and `Flight` objects:
 
-```
+```shell
 yarn console
 ```
 
 When debugging chrome/puppeteer issues it's helpful to use the following command:
 
-```
+```shell
 DEBUG="puppeteer:*" CHROME_DEBUG=true node tasks/check.js
 ```
 
-This will send helpful chromium debugging output into your console, and enable some additional
+This will send helpful chromium debugging output into your console, switch off headless mode, and enable some additional
 logging to help debug what might be going wrong.
 
-## Version history
+### Chromium Codesign Issues
 
-### [3.5.0] - 2019-08-11
-  - Update dependencies, including yarn.lock
-  - Update to Node v12
-### [3.4.0] - 2019-06-30
-  - Move from Redis to MongoDB
-  - Update scraping logic
-  - Improve proxy support
-  - Add some anti-bot detection measures
-  - Thanks to @iloveitaly for these changes!
-### [3.3.0] - 2018-12-25
-  - Add support for award flights (points)
-  - Updated dependencies to latest versions
-### [3.2.1] - 2018-7-23
-  - Merge PR from @GC-Guy to fix proxy support in checks
-### [3.2.0] - 2018-7-21
-  - Merge PR from @GC-Guy to add support for a proxy
-### [3.1.4] - 2018-7-14
-  - Update package.json
-  - Merge PR from @evliu to target the price list items more dynamically
-### [3.1.3] - 2018-6-14
-  - Flight data loaded after page is loaded - added wait for .flight-stops selector
-  - Change URL to current format
-  - Fix test to handle case of no prices found
-  - Add tests for expected bad inputs
-### [3.1.2] - 2018-5-24
-  - Add unit test for Alerts
-  - Add additional logging and error handling
-  - Attempt to reduce memory usage by manually calling about:blank prior to closing page
-  - Add protocol to email link
-### [3.1.1] - 2018-5-4
-  - Fix bug with crash when email or phone number is not set but respective service is enabled
-  - Add semaphore to limit number of pages open at once - hopefully fixing the "Error: Page crashed" error. Limited to 5 pages. Defaults to 5 pages at once - set ENV.MAX_PAGES to change.
-### [3.1.0] - 2018-4-29
-  - Add checks for invalid error
-  - Add notification bars for invalid parameters
-### [3.0.1] - 2018-4-28
-  - Avoid multiple browser instances during task:check - reduce memory usage
-  - Add nodejs buildpack for Heroku deployment
-### [3.0.0] - 2018-4-28
-  - Refactor to support updated Southwest site redesign, replace osmosis with puppeteer
-### [2.1.0] - 2018-4-14
-  - Add support for checking for the cheapest flight on a day
-### [2.0.1] - 2018-4-9
-  - Integrate upstream changes from PetroccoCo (email handling) and pmschartz (redesign)
-### [2.0.0] - 2017-12-2
-  - Support Mailgun and Plivo (email and sms)
-### [1.9.5] - 2017-11-30
-  - Support Mailgun
-### [< 1.9.5]
-  - Prior work
+If you are [running into firewall notifications on macos](https://github.com/puppeteer/puppeteer/issues/4752), you'll need to sign the chromium binary:
+
+```shell
+/usr/bin/find . -name "Chromium.app" | xargs sudo codesign --sign - --force --deep
+```
+
+## Docker Deployment
+
+There are 3 containers in the docker setup:
+
+ - **mongo** - container running mongodb
+ - **nodeapp** - container running the frontend
+ - **nodescheduler** - container running the check every 60 minutes
+
+To run via docker-compose:
+
+Create your .env file from the example. Set the mongo DB url like:
+
+```shell
+MONGODB_URI="mongodb://mongodb:27017/sw_db"
+```
+
+Then you can start up the docker instance.
+
+```shell
+docker-compose build
+```
+
+```shell
+docker-compose up -d
+```
+
+The interface will be available on http://\<*dockerhost*\>:3000
+
+## Raspberry Pi Docker Deployment
+
+There's a separate `docker-compose` and `Dockerfile` for the Raspberry Pi. Chrome installation on a raspberry pi device works differently, and it doesn't support mongodb by default.
+
+```shell
+docker-compose -f docker-compose.pi.yml up -d
+```
+
+## [Changelog](CHANGELOG.md)
 
 ## Attribution
 

@@ -8,7 +8,8 @@ test('getFlights domestic cash', async t => {
     from: 'SEA',
     to: 'CLE',
     departDate: tomorrow,
-    isPointsBooking: false
+    isPointsBooking: false,
+    passengerCount: 1
   };
   const flights = await getFlights(args);
 
@@ -28,7 +29,8 @@ test('getFlights international cash', async t => {
     from: 'DEN',
     to: 'CUN',
     departDate: tomorrow,
-    isPointsBooking: false
+    isPointsBooking: false,
+    passengerCount: 1
   };
   const flights = await getFlights(args);
 
@@ -48,7 +50,8 @@ test('getFlights fake FROM airport cash', async t => {
     from: 'FOO',
     to: 'CLE',
     departDate: tomorrow,
-    isPointsBooking: false
+    isPointsBooking: false,
+    passengerCount: 1
   };
   const flights = await getFlights(args);
 
@@ -62,7 +65,8 @@ test('getFlights fake TO airport cash', async t => {
     from: 'SEA',
     to: 'FOO',
     departDate: tomorrow,
-    isPointsBooking: false
+    isPointsBooking: false,
+    passengerCount: 1
   };
   const flights = await getFlights(args);
 
@@ -76,7 +80,8 @@ test('getFlights previous date cash', async t => {
     from: 'SEA',
     to: 'CLE',
     departDate: yesterday,
-    isPointsBooking: false
+    isPointsBooking: false,
+    passengerCount: 1
   };
   const flights = await getFlights(args);
 

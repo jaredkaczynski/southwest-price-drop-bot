@@ -1,0 +1,62 @@
+version: "3"
+services:
+  nodeapp:
+    container_name: southwest_app
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: southwest-price-drop-bot
+    command: ["npm", "run", "start"]
+    env_file: .env
+    ports:
+      - "3000:3000"
+    links:
+      - mongodb
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      WAIT_HOSTS: mongodb:27017
+    networks:
+      - node-sw-bot-network
+
+  nodescheduler:
+    container_name: southwest_check
+    restart: always
+    image: southwest-price-drop-bot
+    command: ["/home/app/check-loop.sh"]
+    env_file: .env
+    links:
+      - mongodb
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      - WAIT_HOSTS=mongodb:27017
+      - CHECK_WAIT=60m
+    networks:
+      - node-sw-bot-network
+
+  mongodb:
+    container_name: mongodb
+    image: mongo
+    environment:
+      - PGID=1000
+      - PUID=1000
+    volumes:
+      - ./_docker/mongodb:/data/db:Z
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: echo 'db.stats().ok' | mongo localhost:27017/sw_db --quiet  ##change db to whatever you specify in .env
+      interval: 30s
+      timeout: 10s
+      retries: 12
+    restart: unless-stopped
+    networks:
+      - node-sw-bot-network
+
+networks:
+  node-sw-bot-network:
+    driver: bridge

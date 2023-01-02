@@ -7,7 +7,6 @@ mixin form(alert)
             input#date.mdl-textfield__input(
               name='date'
               type='date'
-              readonly=(typeof(alert) !== 'undefined')
               required
               pattern='(([12]\\d{3}[-/.]((0[1-9]|1[0-2])|([1-9]))[-/.]((0[1-9]|[12]\\d|3[01])|([1-9])))|(((0[1-9]|1[0-2])|([1-9]))[-/.]((0[1-9]|[12]\\d|3[01])|([1-9]))[-/.](([12]\\d{3})|(\\d{2}))))'
               min=((new Date()).toISOString().substr(0, 10))
@@ -21,7 +20,6 @@ mixin form(alert)
             input#from.mdl-textfield__input(
               name='from'
               type='text'
-              readonly=(typeof(alert) !== 'undefined')
               required
               pattern='($^)|([A-Za-z]{3})'
               maxlength='3'
@@ -65,10 +63,10 @@ mixin form(alert)
           .bookingType
             label.mdl-radio.mdl-js-radio.mdl-js-ripple-effect(for='cash')
               input(
-                type="radio" 
-                id="cash" 
-                class="mdl-radio__button" 
-                name="bookingType" 
+                type="radio"
+                id="cash"
+                class="mdl-radio__button"
+                name="bookingType"
                 value="cash"
                 disabled=(typeof(alert) !== 'undefined')
                 checked=(!alert || (alert && !alert.isPointsBooking))
@@ -77,11 +75,11 @@ mixin form(alert)
 
             label.mdl-radio.mdl-js-radio.mdl-js-ripple-effect(for='points')
               input(
-                type="radio" 
-                id="points" 
-                class="mdl-radio__button" 
+                type="radio"
+                id="points"
+                class="mdl-radio__button"
                 value="points"
-                name="bookingType" 
+                name="bookingType"
                 disabled=(typeof(alert) !== 'undefined')
                 checked=(alert && alert.isPointsBooking)
               )

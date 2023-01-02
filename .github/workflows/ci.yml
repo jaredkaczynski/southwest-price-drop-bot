@@ -1,0 +1,22 @@
+on: push
+name: npm build, lint, test and publish
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.7.0
+        with:
+          mongodb-version: '5.0.3'
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '17'
+          cache: 'npm'
+      - run: npm install
+      - run: npm test
+        continue-on-error: true
+        env:
+          MONGODB_URI: mongodb://localhost:27017/swa
+      - run: npm run lint
