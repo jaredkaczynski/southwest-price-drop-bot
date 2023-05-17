@@ -38,7 +38,7 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.merge": "^4.6.2",
     "mailgun-js": "^0.22.0",
-    "mongoose": "^6.1.7",
+    "mongoose": "^6.4.6",
     "node-fetch": "^2.6.7",
     "nodemailer": "^6.7.2",
     "npm": "^8.1.1",
